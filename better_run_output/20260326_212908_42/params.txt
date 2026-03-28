@@ -1,0 +1,7 @@
+image: /home/jrx/cygy/competition/data/office/images/1766374552.80307.jpg
+xml_dir: /home/jrx/cygy/competition/data/office/xmls
+scale: 2.0
+crop_size: 512
+seed: 42
+max_offset_ratio: 0.3
+output_dir: /home/jrx/cygy/competition/scripts/oneReward/better_run_output/20260326_212908_42

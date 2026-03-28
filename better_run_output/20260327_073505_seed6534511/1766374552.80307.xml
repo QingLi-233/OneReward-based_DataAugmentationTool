@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<annotation>
+	<folder>VOC2007</folder>
+	<filename>1766374552.80307.jpg</filename>
+	<path>Unknown</path>
+	<source>
+		<database>The VOC2007 Database</database>
+	</source>
+	<size>
+		<width>1024</width>
+		<height>1024</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>07010032</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>54</xmin>
+			<ymin>133</ymin>
+			<xmax>161</xmax>
+			<ymax>399</ymax>
+		</bndbox>
+	</object>
+	</annotation>
