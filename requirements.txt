@@ -1,0 +1,99 @@
+# ============================================================================
+#  DefectBolt-Aug —— 运行环境依赖
+#
+#  Python 3.10 / 3.11 · Linux · NVIDIA GPU（Compute Capability >= 8.0，Ampere 起）
+#  最后核验：2026-10
+#
+#  ⚠️ torch 单独安装（CUDA 版本必须与本机驱动匹配），见文件末尾【说明 2】。
+#     本文件中其余依赖可直接批量安装：
+#         pip install -r requirements.txt
+# ============================================================================
+
+
+# ---------- 核心：扩散模型推理 ----------
+
+diffusers>=0.35.0
+    # FluxTransformer2DModel、FLUX.1-Fill-dev 加载所需
+    # OneReward 官方明确要求 >= 0.35.0，低于此版本无 FluxFill 支持
+
+transformers>=4.51.3
+    # FLUX 的 T5-XXL / CLIP-L 文本编码器
+    # 【硬下限】OneReward 的奖励模型基于 Qwen2.5-VL，版本低于 4.51.3 会直接报错
+
+accelerate>=0.30.0
+    # 脚本中的 enable_model_cpu_offload() / enable_sequential_cpu_offload() 依赖它
+
+huggingface_hub>=0.25.0
+    # 默认从 HF 仓库拉权重：bytedance-research/OneReward、black-forest-labs/FLUX.1-Fill-dev
+
+safetensors>=0.4.0
+    # FLUX / OneReward 权重均为 .safetensors 格式
+
+sentencepiece>=0.2.0
+    # T5 文本编码器 tokenizer 必需
+
+protobuf>=4.25.0
+    # T5 tokenizer 依赖的 sentencepiece 运行时
+
+
+# ---------- 图像处理与标注 ----------
+
+Pillow>=10.0.0
+    # 裁剪、1024x1024 画布合成、mask 绘制（ImageDraw）
+
+numpy>=1.24.0
+    # diffusers / Pillow 的传递依赖，显式锁定以避免版本漂移
+
+
+# ---------- 可选：仅在跑 YOLO11n 对照实验时需要 ----------
+
+# ultralytics>=8.3.0
+#     本仓库的两个生成脚本完全不依赖它，只有 README「对照实验」章节训练检测器时才用。
+
+
+# ============================================================================
+#  说明
+# ============================================================================
+#
+#  【说明 1】FluxFillCFGPipeline 不在官方 diffusers 里
+#  ----------------------------------------------------------------------
+#  better_run.py / better_run_betch.py 中的
+#      from src.pipeline_flux_fill_with_cfg import FluxFillCFGPipeline
+#  来自 OneReward 官方仓库。
+#
+#    · 直接用 HF 仓库 id（脚本默认）→ 无需额外操作，from_pretrained 会自动拉取
+#    · 用本地权重目录            → 需把仓库的 src/ 加入 PYTHONPATH：
+#
+#          git clone https://github.com/bytedance/OneReward.git
+#          export PYTHONPATH=$PWD/OneReward:$PYTHONPATH
+#
+#
+#  【说明 2】torch 必须单独安装
+#  ----------------------------------------------------------------------
+#  本文件故意不写 torch 的版本约束，因为 wheel 的 CUDA 版本由 index 决定。
+#  按本机驱动选择一条：
+#
+#      pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#      pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+#      pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+#
+#  · 建议 torch >= 2.5.0：2.4.0 存在已知的 FLUX 噪点/画质异常
+#  · torchvision 本项目不直接使用，装上是为了匹配 torch 的 ABI
+#  · bfloat16 需要 Ampere 及以上；老卡请改 float16（需自行调整脚本中的 torch_dtype）
+#
+#  验证环境：
+#      python -c "import torch; print(torch.__version__, torch.cuda.is_bf16_supported())"
+#
+#
+#  【说明 3】不需要 lxml
+#  ----------------------------------------------------------------------
+#  标注读写用的是 Python 标准库 xml.etree.ElementTree，无第三方 XML 依赖。
+#  （部分 VOC 转换工具会要求 lxml，但本项目不涉及。）
+#
+#
+#  【说明 4】许可证提醒
+#  ----------------------------------------------------------------------
+#  本项目代码 MIT，但上游依赖均不允许商用：
+#    · OneReward 代码          Apache 2.0
+#    · OneReward 权重          CC BY-NC 4.0
+#    · FLUX.1-Fill-dev 基座    FLUX.1 [dev] Non-Commercial License
