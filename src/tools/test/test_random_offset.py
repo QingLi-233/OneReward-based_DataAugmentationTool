@@ -8,6 +8,10 @@ from datetime import datetime
 from pathlib import Path
 from PIL import Image, ImageDraw
 
+"""
+用于测试随机偏移
+"""
+
 TARGET_SIZE = 1024
 
 def random_offset(shift_range)->(int, int):
